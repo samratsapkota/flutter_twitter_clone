@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             create: (_) => SuggestionsState()),
       ],
       child: MaterialApp(
-        title: 'Fwitter',
+        title: 'sdassd',
         theme: AppTheme.appTheme.copyWith(
           textTheme: GoogleFonts.mulishTextTheme(
             Theme.of(context).textTheme,
