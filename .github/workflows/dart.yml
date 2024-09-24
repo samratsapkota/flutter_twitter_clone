@@ -15,7 +15,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3  # Ensure this is the latest version
         with:
-          java-version: '11'  # or any version your app requires
+          java-version: '17'  # or any version your app requires
           distribution: 'adopt'  # Specify the distribution
       - name: Install Flutter
         uses: subosito/flutter-action@v2
