@@ -24,7 +24,7 @@ jobs:
       - name: Increment Build Number
         run: |
           # Read the current version and build number
-          current_version=$(grep 'version:' pubspec.yaml | cut -d "+" -f1)
+          current_version=$(grep 'version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)
           current_build=$(grep 'version:' pubspec.yaml | cut -d "+" -f2)
           new_build=$((current_build + 1))
           
