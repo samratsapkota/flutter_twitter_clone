@@ -11,45 +11,38 @@ RUN apt update && apt install -y \
     zip \
     libglu1-mesa \
     openjdk-17-jdk \
-    wget \
-    maven # Install maven for JAXB dependencies
+    wget
 
-# Set up user as root
-RUN mkdir /home/flutterdev
+# Create a user and set the home directory
+RUN useradd -ms /bin/bash flutterdev
+
+# Switch to the new user
+USER flutterdev
 WORKDIR /home/flutterdev
-USER root
-
-# Prepare Android directories and system variables
-#RUN mkdir -p Android/sdk
-#ENV ANDROID_SDK_ROOT /home/flutterdev/Android/sdk
-#RUN mkdir -p .android && touch .android/repositories.cfg
 
 # Set up Android SDK
-#RUN wget -O sdk-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-#RUN unzip sdk-tools.zip && rm sdk-tools.zip
-#RUN mv tools Android/sdk/tools
+RUN mkdir -p Android/sdk && \
+    mkdir -p .android && touch .android/repositories.cfg
 
-# Install JAXB dependencies
-#RUN mvn dependency:get -Dartifact=javax.xml.bind:jaxb-api:2.3.1
-#RUN mvn dependency:get -Dartifact=org.glassfish.jaxb:jaxb-runtime:2.3.1
-# Accept licenses for the SDK
-#RUN cd Android/sdk/tools/bin && \
-  #  echo "y" | ./sdkmanager --licenses || true
-#RUN cd Android/sdk/tools/bin && \
- #   ./sdkmanager "build-tools;29.0.2" "patcher;v4" "platform-tools" "platforms;android-29" "sources;android-29"
+# Download and install Android SDK tools
+RUN wget -O sdk-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && \
+    unzip sdk-tools.zip -d Android/sdk && \
+    rm sdk-tools.zip && \
+    yes | Android/sdk/tools/bin/sdkmanager --licenses && \
+    Android/sdk/tools/bin/sdkmanager "platform-tools" "platforms;android-29"
 
-
-# Accept licenses for the SDK
-#RUN cd Android/sdk/tools/bin && yes | ./sdkmanager --licenses
-#RUN cd Android/sdk/tools/bin && ./sdkmanager "build-tools;29.0.2" "patcher;v4" "platform-tools" "platforms;android-29" "sources;android-29"
-
-# Download Flutter SDK
+# Set up Flutter SDK
 RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /flutter && \
     cd /flutter && \
-    git checkout 3.24.3 
+    git checkout 3.24.3
 
+# Add Flutter to PATH
 ENV PATH="/flutter/bin:${PATH}"
-# Run basic check to download Dart SDK
+
+# Run Flutter doctor to finalize setup
 RUN flutter doctor
-RUN flutter config --no-analytics
+
+# Default command to keep the container running
+CMD ["bash"]
+
 
