@@ -48,6 +48,7 @@ RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /flutte
     cd /flutter && \
     git checkout 3.24.3 
 
+ENV PATH="/flutter/bin:${PATH}"
 # Run basic check to download Dart SDK
 RUN flutter doctor
 RUN flutter config --no-analytics
