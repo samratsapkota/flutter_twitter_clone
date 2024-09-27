@@ -1,21 +1,34 @@
 FROM ubuntu:20.04
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    unzip \
-    xz-utils \
-    && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=noninteractive
+# Prerequisites
+RUN apt update && apt install -y curl git unzip xz-utils zip libglu1-mesa openjdk-17-jdk wget
 
-# Install Flutter
+# Set up user as root
+RUN mkdir /home/flutterdev
+WORKDIR /home/flutterdev
+USER root
+
+# Prepare Android directories and system variables
+RUN mkdir -p Android/sdk
+ENV ANDROID_SDK_ROOT /home/flutterdev/Android/sdk
+RUN mkdir -p .android && touch .android/repositories.cfg
+
+# Set up Android SDK
+RUN wget -O sdk-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
+RUN unzip sdk-tools.zip && rm sdk-tools.zip
+RUN mv tools Android/sdk/tools
+RUN cd Android/sdk/tools/bin && yes | ./sdkmanager --licenses
+RUN cd Android/sdk/tools/bin && ./sdkmanager "build-tools;29.0.2" "patcher;v4" "platform-tools" "platforms;android-29" "sources;android-29"
+ENV PATH "$PATH:/home/ flutterdev /Android/sdk/platform-tools"
+
+# Download Flutter SDK
+#RUN git clone https://github.com/flutter/flutter.git
 RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /flutter && \
-     cd flutter && \
-     git checkout 3.24.3 && \
-    /flutter/bin/flutter doctor
-   
-# Add Flutter to PATH
-ENV PATH="/flutter/bin:${PATH}"
+    cd /flutter && \
+    git checkout 3.24.3 && \
+    flutter doctor
 
-WORKDIR /app
-
+# Run basic check to download Dart SDK
+RUN flutter doctor
+RUN flutter config --no-analytic
