@@ -52,11 +52,10 @@ dependencies:
   qr_code_scanner: ^1.0.0
   qr_flutter: ^4.1.0
   rxdart: ^0.28.0
-  translator: ^1.0.0
+  
   # link_preview_generator: ^1.2.0
 
-dependency_overrides:
-      win32: ^5.5.4  
+ 
 
 dev_dependencies:
   test: ^1.17.10
