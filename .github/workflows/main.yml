@@ -1,0 +1,48 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.3'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Create google-services.json
+      run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
+
+    - name: Build APK for Production
+      run: flutter build apk --release
+
+    - name: Upload APK to Google Play Store (Production)
+      env:
+        GOOGLE_PLAY_JSON_KEY: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+      run: |
+        echo $GOOGLE_PLAY_JSON_KEY > /tmp/google_play_key.json
+        gcloud auth activate-service-account --key-file=/tmp/google_play_key.json
+        
+        # Upload your APK using Google Play API
+        PACKAGE_NAME=your.package.name
+        APK_FILE=./build/app/outputs/apk/release/app-release.apk
+        TRACK=production  # Specifying Production track
+
+        gcloud --quiet play apps bundles upload --package-name=$PACKAGE_NAME --track=$TRACK --bundle=$APK_FILE
